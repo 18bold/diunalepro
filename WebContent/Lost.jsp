@@ -20,7 +20,7 @@
       	z-index: 10;
       }
     </style>
-    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=880f7eba81210cfb1cd402e6d44248f0"></script>
+    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=880f7eba81210cfb1cd402e6d44248f0&plugin=AMap.Walking"></script>
     <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
    	<title>失物招领</title>
   </head>
@@ -42,6 +42,33 @@
 	<script src="JS/infoWindow.js"></script>
 	<script src="JS/createinfoWindow.js"></script>
 	<script>
+	// 利用步行导航绘制路径
+	function getInfoByPath()
+	{
+	    // 步行导航
+	    var walking = new AMap.Walking({
+	        map: map
+	    }); 
+	    // 根据起终点坐标规划步行路线
+	    walking.search([119.212483,26.023488], [119.208971, 26.032154],function(status, result){
+			if(status === 'complete'){
+				var arr = result.routes;
+				for (var i=0; i<result.count; i++)
+				{
+					var brr = arr[i].steps;
+					for (var j in brr)
+					{
+						var crr = brr[j].path;
+						for (var k in crr)
+						{
+							console.log(crr[k]);
+						}
+					}
+				}
+	        }
+	    });
+	}
+	getInfoByPath();
 	function getAllInfo(){
 		$.ajax({
 			url:"GetLostInfoServlet",    // 传递给Servlet
