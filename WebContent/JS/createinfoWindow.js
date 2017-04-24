@@ -28,6 +28,7 @@
         var form = document.createElement("form");
         form.id = "newinfoform";
         form.name = "newinfoform";
+        form.enctype= "multipart/form-data";
         var lable = document.createElement("lable");
         lable.innerHTML = "名称";
         // 创建一个input输入name

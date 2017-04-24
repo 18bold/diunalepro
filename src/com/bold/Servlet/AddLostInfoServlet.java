@@ -1,6 +1,10 @@
 package com.bold.Servlet;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -54,9 +58,10 @@ public class AddLostInfoServlet extends HttpServlet {
             {
                 ApplicationPart ap = (ApplicationPart) p;
                 String fname1 = ap.getSubmittedFileName();
-                int path_idx = fname1.lastIndexOf("\\")+1;
-                // String fname2 ="Picture/lost/" + fname1.substring(path_idx,fname1.length());
-                String fname2 = fname1.substring(path_idx,fname1.length());
+                Date date=new Date();
+                DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
+                String time=format.format(date);
+                String fname2 = time + "." + fname1.split("\\.")[1];
                 p.write(fname2);
                 LostInfo lostinfo = new LostInfo();
                 lostinfo.setName(name);
@@ -73,6 +78,7 @@ public class AddLostInfoServlet extends HttpServlet {
         }else{
             System.out.println("失败");
         }
+	    
 	}
 
 }

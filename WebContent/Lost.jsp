@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
 <!DOCTYPE html >
 <html lang="zh-cn">
   <head>
@@ -93,7 +94,8 @@
 	{
 		map.clearMap();    // 清除覆盖物
 		map.setDefaultCursor("crosshair");    // 设置鼠标样式
-    	map.on('click', function(e) {
+		// 添加地图的click事件
+		var clickMap = function(e) {
     		map.clearMap();
     		var markerOption = {  
 		        map:map,
@@ -105,8 +107,9 @@
     		map.setDefaultCursor("pointer");
     		// 设置marker的监听事件
     		AMap.event.addListener(newmarker,'click',newinfoWindow);
-    	});
-    	map.setFitView();
+    	    map.off('click',clickMap);
+    	}
+    	map.on('click', clickMap);
 	}
 	// marker的监听事件:创建新的窗体
 	function newinfoWindow()
@@ -117,6 +120,7 @@
 	        offset: new AMap.Pixel(16, -45)
         });
         infoWindow.open(map,this.getPosition());
+        
 	}
 	function sendForm()
 	{
