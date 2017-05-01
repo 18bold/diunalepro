@@ -19,14 +19,14 @@ import net.sf.json.JSONObject;
 /**
  * Servlet implementation class LostInfoServlet
  */
-@WebServlet("/GetLostInfoServlet")
-public class GetLostInfoServlet extends HttpServlet {
+@WebServlet("/GetAllLostInfoServlet")
+public class GetAllLostInfoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public GetLostInfoServlet() {
+    public GetAllLostInfoServlet() {
         super();
     }
 
