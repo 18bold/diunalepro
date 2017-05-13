@@ -6,7 +6,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="CSS/infoWindow.css"/>
+    <link rel="stylesheet" href="css/infoWindow.css"/>
     <style type="text/css">
       body,html,#container{
         height: 100%;
@@ -33,7 +33,7 @@
       	width:300px;
       }
     </style>
-    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=880f7eba81210cfb1cd402e6d44248f0&plugin=AMap.Walking"></script>
+    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=880f7eba81210cfb1cd402e6d44248f0&plugin=AMap.Walking,AMap.Autocomplete,AMap.PlaceSearch"></script>
     <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
    	<title>失物招领</title>
   </head>
@@ -53,6 +53,7 @@
 		  <input id="end" type="text" value="">
 		  <input type="button" onclick="addEndMarker()" value="地图上选点">
 	  </div>
+	  <div id="panel"></div>
 	</div>
 	
 	<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
@@ -74,12 +75,32 @@
 	        city: "010"//城市，默认：“全国”
 	    });
 	    //TODO: 使用geocoder 对象完成相关功能
-	})
+	});
+	//输入提示
+    var autoOptions = {
+        input: "start"
+    };
+    var auto = new AMap.Autocomplete(autoOptions);
+    var placeSearch = new AMap.PlaceSearch({
+        map: map,
+    	panel:panel
+    });  //构造地点查询类
+    AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+    AMap.event.addListener(placeSearch, "markerClick", markerClick);//注册监听，当选中某条记录时会触发
+    function select(e) 
+    {
+        placeSearch.setCity(e.poi.adcode);
+        placeSearch.search(e.poi.name);  //关键字查询查询
+    }
+    function markerClick(e)
+    {
+    	alert("点击");
+    }
 	var StartMarker,EndMarker;
 	</script>
-	<script src="JS/addMarker.js"></script>
-	<script src="JS/infoWindow.js"></script>
-	<script src="JS/createinfoWindow.js"></script>
+	<script src="js/addMarker.js"></script>
+	<script src="js/infoWindow.js"></script>
+	<script src="js/createinfoWindow.js"></script>
 	<script>
 	function addStartMarker()
 	{
