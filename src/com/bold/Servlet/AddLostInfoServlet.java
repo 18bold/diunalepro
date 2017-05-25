@@ -51,7 +51,8 @@ public class AddLostInfoServlet extends HttpServlet {
         String name = request.getParameter("name");
         String lng = request.getParameter("lng");
         String lat = request.getParameter("lat");
-        //System.out.println(name + lng + lat);
+        System.out.println(name + lng + lat);
+        /*
         Part p =request.getPart("pic");
         if(p.getContentType().contains("image")){
             try
@@ -78,7 +79,7 @@ public class AddLostInfoServlet extends HttpServlet {
         }else{
             System.out.println("失败");
         }
-	    
+	    */
 	}
 
 }
