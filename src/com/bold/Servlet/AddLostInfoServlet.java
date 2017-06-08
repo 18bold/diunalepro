@@ -14,8 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import org.apache.catalina.core.ApplicationPart;
+import org.opencv.core.Core;
 
 import com.bold.Dao.LostInfoDao;
+import com.bold.Dao.PictureSurfDao;
 import com.bold.Model.LostInfo;
 
 
@@ -51,17 +53,14 @@ public class AddLostInfoServlet extends HttpServlet {
         String name = request.getParameter("name");
         String lng = request.getParameter("lng");
         String lat = request.getParameter("lat");
-        System.out.println(name + lng + lat);
-        /*
         Part p =request.getPart("pic");
         if(p.getContentType().contains("image")){
             try
             {
                 ApplicationPart ap = (ApplicationPart) p;
                 String fname1 = ap.getSubmittedFileName();
-                Date date=new Date();
                 DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
-                String time=format.format(date);
+                String time=format.format(new Date());
                 String fname2 = time + "." + fname1.split("\\.")[1];
                 p.write(fname2);
                 LostInfo lostinfo = new LostInfo();
@@ -69,8 +68,9 @@ public class AddLostInfoServlet extends HttpServlet {
                 lostinfo.setLng(Double.parseDouble(lng));
                 lostinfo.setLat(Double.parseDouble(lat));
                 lostinfo.setPic(fname2);
-                boolean issuccess = LostInfoDao.insertLostInfo(lostinfo);
-                System.out.println(issuccess);
+                //boolean issuccess = LostInfoDao.insertLostInfo(lostinfo);
+                //new PictureSurfDao("D:/Picture/lost/" + fname2).start();
+                //System.out.println(issuccess);
             }
             catch(IOException e)
             {
@@ -79,7 +79,6 @@ public class AddLostInfoServlet extends HttpServlet {
         }else{
             System.out.println("失败");
         }
-	    */
 	}
 
 }
