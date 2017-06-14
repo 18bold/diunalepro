@@ -3,73 +3,45 @@ package com.bold.Dao;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.opencv.core.CvType;
+import java.util.ArrayList;
+import java.util.List;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfKeyPoint;
-import org.opencv.core.Rect;
-import org.opencv.features2d.DescriptorExtractor;
-import org.opencv.features2d.FeatureDetector;
-import org.opencv.features2d.KeyPoint;
-import org.opencv.highgui.Highgui;
-
+import com.bold.Model.LostInfo;
+import com.bold.SIFT.SIFT;
 import com.bold.Util.DB.DataBaseUtil;
 
-public class PictureSurfDao extends Thread
+public class PictureSurfDao 
 {
-    static{
-        System.load(new File("D:/opencv249/opencv/build/java/x64/opencv_java249.dll").getAbsolutePath());
-    }
     private String filepath;
+    private List<String> piclist;
+    public static Mat descriptors_scene = null;
     public PictureSurfDao(String filepath)
     {
+        System.load(new File("D:/opencv249/opencv/build/java/x64/opencv_java249.dll").getAbsolutePath());
         this.filepath = filepath;
+        getFiles();
     }
-    @Override
-    public void run()
+    public void getFiles() 
     {
-        getPoints(filepath);
-    }
-    public void getPoints(String filepath) 
-    {
-        
-        System.out.println(filepath);
-        Mat object=Highgui.imread(filepath);
-        object.convertTo(object, CvType.CV_8UC3);
-        
-        Mat scene=object.submat(new Rect(0,0,object.width(),object.height()));
-        FeatureDetector detector = FeatureDetector.create(FeatureDetector.SURF);
-        DescriptorExtractor descriptor = DescriptorExtractor.create(DescriptorExtractor.SURF);
-        
-        Mat descriptors_scene= new Mat();
-        MatOfKeyPoint keypoints_scene= new MatOfKeyPoint();
-        
-        detector.detect(scene, keypoints_scene);
-        descriptor.compute(scene, keypoints_scene, descriptors_scene);
-        System.out.println(keypoints_scene.toList().size());
-        //System.out.println(descriptors_scene.dump());
-        System.out.println(descriptors_scene.nativeObj);
-        
-        /*// 获取数据库连接对象
+        piclist = new ArrayList<String>();
+        // 获取数据库连接对象
         Connection conn = DataBaseUtil.getConnection();
         // 根据指定用户名查询用户信息
-        String sql = "Insert into tb_keypoints(ptx,pty,size,angle,response,octave,class_id) values (?,?,?,?,?,?,?) ";
+        String sql = "select pic from tb_lost ";
         try
         {
-            // 插入用户注册信息的sql
-            PreparedStatement ps = conn.prepareStatement(sql);;
-            for (KeyPoint mk: keypoints_scene.toList())
+            // 获取PreparedStatement对象
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
             {
-                ps.setDouble(1, mk.pt.x);
-                ps.setDouble(2, mk.pt.y);
-                ps.setFloat(3, mk.size);
-                ps.setFloat(4, mk.angle);
-                ps.setFloat(5, mk.response);
-                ps.setInt(6, mk.octave);
-                ps.setInt(7, mk.class_id);
-                ps.executeUpdate();
+                piclist.add(rs.getString("pic"));
             }
-            ps.close();    
+            rs.close();
+            ps.close();
+            System.out.println(piclist);
         }
         catch (SQLException e)
         {
@@ -78,6 +50,71 @@ public class PictureSurfDao extends Thread
         finally
         {
             DataBaseUtil.closeConnection(conn);
-        }*/
+        }
     }
+    // 计算和匹配
+    public LostInfo calpiclist()
+    {
+        descriptors_scene = SIFT.surfcal(filepath);
+        for (int j =0; j < 1; j++)
+        {
+            for (int i = 0; i < piclist.size(); i++)
+            {
+                new SurfCalThread(piclist.get(i), i).start();
+            }
+        }
+        while (true)
+        {
+            if (SurfCalThread.rusult.size() == piclist.size()) 
+            {
+                System.out.println(SurfCalThread.rusult);
+                Object[] w = SurfCalThread.rusult.keySet().toArray();
+                return getLost(piclist.get(SurfCalThread.rusult.get(w[piclist.size()-1])));
+            }
+            try{
+                Thread.sleep(1000);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+    /**
+     * 获取失物招领信息
+     */
+    public LostInfo getLost(String picname)
+    {
+        // 获取数据库连接对象
+        Connection conn = DataBaseUtil.getConnection();
+        // 根据指定用户名查询用户信息
+        String sql = "select * from tb_lost where pic= ?";
+        try
+        {
+            // 获取PreparedStatement对象
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, picname);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next())
+            {
+                LostInfo lostinfo = new LostInfo();
+                lostinfo.setName(rs.getString("name"));
+                lostinfo.setLng(rs.getDouble("lng"));
+                lostinfo.setLat(rs.getDouble("lat"));
+                lostinfo.setPic("/Piclost/"+rs.getString("pic"));
+                return lostinfo;
+            }
+            rs.close();
+            ps.close();
+            
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            DataBaseUtil.closeConnection(conn);
+        }
+        return null;
+    }
+    
 }
